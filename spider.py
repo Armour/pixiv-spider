@@ -6,7 +6,7 @@
 import os
 
 from pixivpy3 import AppPixivAPI
-from config import ContentType, RankingType, DEFAULT_DOWNLOAD_COUNT
+from config import ContentType, RankingType, DEFAULT_DOWNLOAD_COUNT_IN_TOTAL, DEFAULT_DOWNLOAD_COUNT_EACH_USER
 from datetime import datetime
 
 
@@ -20,6 +20,9 @@ class PixivSpider:
         self.count = 0
 
     def clear(self):
+        """
+        Clear and print logs before exit
+        """
         print("Finish! Total download illusts number: %d" % self.count)
 
     def create_download_folder(self):
@@ -50,7 +53,7 @@ class PixivSpider:
             self.count += 1
 
     def get_top_ranking_illusts(self,
-                                count=DEFAULT_DOWNLOAD_COUNT,
+                                count=DEFAULT_DOWNLOAD_COUNT_IN_TOTAL,
                                 ranking_type=RankingType.DAY,
                                 date=datetime.today().strftime("%Y-%m-%d"),
                                 download=False):
@@ -76,7 +79,7 @@ class PixivSpider:
         return illusts[:count]
 
     def get_recommended_illusts(self,
-                                count=DEFAULT_DOWNLOAD_COUNT,
+                                count=DEFAULT_DOWNLOAD_COUNT_IN_TOTAL,
                                 content_type=ContentType.ILLUST,
                                 download=False):
         """
@@ -110,7 +113,7 @@ class PixivSpider:
 
     def get_illusts_by_user_ids(self,
                                 user_ids,
-                                count=DEFAULT_DOWNLOAD_COUNT,
+                                count=DEFAULT_DOWNLOAD_COUNT_EACH_USER,
                                 content_type=ContentType.ILLUST,
                                 download=False):
         """
@@ -140,5 +143,5 @@ if __name__ == '__main__':
     top_ranking_illusts = spider.get_top_ranking_illusts(download=True, count=1)
     recommended_illusts = spider.get_recommended_illusts(download=True, count=1)
     user_ids = spider.get_user_ids_from_illusts(top_ranking_illusts + recommended_illusts)
-    more_illusts = spider.get_illusts_by_user_ids(user_ids=user_ids, download=True, count=1)
+    spider.get_illusts_by_user_ids(user_ids=user_ids, download=True, count=1)
     spider.clear()
