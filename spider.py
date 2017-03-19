@@ -4,10 +4,12 @@
 # @Date:   2017-03-12 23:59:09
 
 import os
+import json
 
-from pixivpy3 import AppPixivAPI
+from pixivpy3 import AppPixivAPI, PixivError
 from config import ContentType, RankingType, DEFAULT_DOWNLOAD_COUNT_IN_TOTAL, DEFAULT_DOWNLOAD_COUNT_EACH_USER
 from datetime import datetime
+from sets import Set
 
 
 class PixivSpider:
@@ -16,14 +18,29 @@ class PixivSpider:
         Init PixivSpider
         """
         self.api = AppPixivAPI()
-        self.directory = "download"
-        self.count = 0
+        self.directory = 'download'
+        if not os.path.exists('info.json'):
+            self.data = {'illusts': []}
+            self.count = 0
+            print("Create new info.json file")
+        else:
+            with open('info.json', 'r') as f:
+                self.data = json.load(f)
+                self.count = len(self.data['illusts'])
+                print("Load existing info.json file")
+                print("Existed illusts count: %d" % self.count)
+        self.file = open('info.json', 'w')
+        self.illusts_names = Set()
+        for illust in self.data['illusts']:
+            self.illusts_names.add(illust['name'])
 
-    def clear(self):
+    def exit(self):
         """
-        Clear and print logs before exit
+        Stop spider and print logs
         """
-        print("Finish! Total download illusts number: %d" % self.count)
+        json.dump(self.data, self.file, indent=2)
+        self.file.close()
+        print("Finish! Total downloaded illusts number: %d" % self.count)
 
     def create_download_folder(self):
         """
@@ -37,20 +54,31 @@ class PixivSpider:
         Download illusts
         """
         for illust in illusts:
-            image_url = illust.meta_single_page.get('original_image_url',
-                                                    illust.image_urls.large)
+            image_url = illust.meta_single_page.get('original_image_url', illust.image_urls.large)
             print(u"👀  Found illust: %s (%s)" % (illust.title, image_url))
             url_basename = os.path.basename(image_url)
             extension = os.path.splitext(url_basename)[1]
-            name = "illust_id_%d_%s%s" % (illust.id, illust.title, extension)
-            name = name.replace("/", ":")
-            if not os.path.exists(self.directory + '/' + name):
+            name = "%d_%s%s" % (illust.id, illust.title, extension)
+            name = name.replace('/', ':')
+            if name not in self.illusts_names:
+                self.count += 1
+                self.data['illusts'].append({
+                    'id': self.count,
+                    'name': name,
+                    'illust_id': illust.id,
+                    'illustrator_id': illust.user.id,
+                    'source_url': image_url
+                })
+                self.illusts_names.add(name)
+                name = "%d_" % self.count + name
+                try:
+                    self.api.download(image_url, path=self.directory, name=name)
+                except PixivError:
+                    print(u"😢  PixivError!!! Skip this illusts")
+                    continue
                 print(u"✅  Download illust: %s (%s)" % (illust.title, image_url))
-                self.api.download(image_url, path=self.directory, name=name)
             else:
                 print(u"✨  Already download: %s: %s" % (illust.title, image_url))
-
-            self.count += 1
 
     def get_top_ranking_illusts(self,
                                 count=DEFAULT_DOWNLOAD_COUNT_IN_TOTAL,
@@ -70,7 +98,10 @@ class PixivSpider:
             next_qs = self.api.parse_qs(json_result.next_url)
             if next_qs is None:
                 break
-            json_result = self.api.illust_ranking(**next_qs)
+            try:
+                json_result = self.api.illust_ranking(**next_qs)
+            except TypeError:
+                break
             illusts += json_result.illusts
 
         if download:
@@ -94,7 +125,10 @@ class PixivSpider:
             next_qs = self.api.parse_qs(json_result.next_url)
             if next_qs is None:
                 break
-            json_result = self.api.illust_ranking(**next_qs)
+            try:
+                json_result = self.api.illust_ranking(**next_qs)
+            except TypeError:
+                break
             illusts += json_result.illusts
 
         if download:
@@ -127,7 +161,10 @@ class PixivSpider:
                 next_qs = self.api.parse_qs(json_result.next_url)
                 if next_qs is None:
                     break
-                json_result = self.api.illust_ranking(**next_qs)
+                try:
+                    json_result = self.api.illust_ranking(**next_qs)
+                except TypeError:
+                    break
                 illusts += json_result.illusts
 
             if download:
@@ -140,8 +177,8 @@ class PixivSpider:
 if __name__ == '__main__':
     spider = PixivSpider()
     spider.create_download_folder()
-    top_ranking_illusts = spider.get_top_ranking_illusts(download=True, count=1)
-    recommended_illusts = spider.get_recommended_illusts(download=True, count=1)
+    top_ranking_illusts = spider.get_top_ranking_illusts(download=True, count=20)
+    recommended_illusts = spider.get_recommended_illusts(download=True, count=20)
     user_ids = spider.get_user_ids_from_illusts(top_ranking_illusts + recommended_illusts)
-    spider.get_illusts_by_user_ids(user_ids=user_ids, download=True, count=1)
-    spider.clear()
+    spider.get_illusts_by_user_ids(user_ids=user_ids, download=True, count=20)
+    spider.exit()

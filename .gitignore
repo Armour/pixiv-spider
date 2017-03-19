@@ -12,5 +12,8 @@ venv/
 # download folder
 download/
 
+# info file
+info.json
+
 # others
 .DS_Store
