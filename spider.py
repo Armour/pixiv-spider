@@ -83,7 +83,7 @@ class PixivSpider:
                 try:
                     self.api.download(image_url, path=self.directory, name=name)
                 except PixivError:
-                    print(u"😢  PixivError!!! Skip this illusts")
+                    print(u"😢  PixivError!!! Skip this illust")
                     continue
                 print(u"✅  Download illust: %s (%s)" % (illust.title, image_url))
             else:
