@@ -167,8 +167,8 @@ class PixivSpider:
 if __name__ == '__main__':
     spider = PixivSpider()
     spider.create_download_folder()
-    top_ranking_illusts = spider.get_top_ranking_illusts(download=True, count=100)
-    recommended_illusts = spider.get_recommended_illusts(download=True, count=100)
+    top_ranking_illusts = spider.get_top_ranking_illusts(download=True, count=10)
+    recommended_illusts = spider.get_recommended_illusts(download=True, count=10)
     user_ids = spider.get_user_ids_from_illusts(top_ranking_illusts + recommended_illusts)
-    spider.get_illusts_by_user_ids(user_ids=user_ids, download=True, count=100)
+    spider.get_illusts_by_user_ids(user_ids=user_ids, download=True, count=5)
     spider.exit()
