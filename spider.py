@@ -1,7 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
-# @Author: Chong Guo
-# @Date:   2017-03-12 23:59:09
+
+"""Web spider for scrawling pixiv images."""
+
+__author__ = 'Chong Guo'
+__copyright__ = 'Copyright 2018, Chong Guo'
+__license__ = 'MIT'
+__email__ = 'armourcy@email.com'
 
 import os
 import json
@@ -42,6 +47,15 @@ class PixivSpider:
         self.illusts_names = Set()
         for illust in self.data['illusts']:
             self.illusts_names.add(illust['name'])
+
+    def login(self):
+        """
+        Login pixiv.net
+        """
+        with open('login.json') as f:
+            login = json.load(f)
+            self.api.login(login["username"], login["password"])
+            print("Login pixiv.net with user %s.", login["username"])
 
     def exit(self):
         """
@@ -167,6 +181,7 @@ class PixivSpider:
 if __name__ == '__main__':
     spider = PixivSpider()
     spider.create_download_folder()
+    spider.login()
     top_ranking_illusts = spider.get_top_ranking_illusts(download=True, count=10)
     recommended_illusts = spider.get_recommended_illusts(download=True, count=10)
     user_ids = spider.get_user_ids_from_illusts(top_ranking_illusts + recommended_illusts)
