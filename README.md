@@ -6,6 +6,10 @@
 
 哇来扒一扒[p站](http://www.pixiv.net/)hhhh
 
+## Screenshot
+
+![img](images/screenshot.png)
+
 ## Prerequisite
 
 * python3
