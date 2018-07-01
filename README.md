@@ -14,6 +14,8 @@
 
 ## Run
 
+Set your pixiv username and password in `login.json` file and then:
+
 ~~~shell
 python spider.py
 ~~~
