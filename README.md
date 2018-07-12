@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Template from jarvis](https://img.shields.io/badge/Hi-Jarvis-ff69b4.svg)](https://github.com/Armour/Jarvis)
 
-哇来扒一扒[p站](http://www.pixiv.net/)hhhh
+哇来扒一扒[p站](http://www.pixiv.net/)hhhh / Web crawler for [pixiv](http://www.pixiv.net/)
 
 ## Screenshot
 

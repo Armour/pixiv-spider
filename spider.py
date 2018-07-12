@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Web spider for scrawling pixiv images."""
+"""Web crawler for pixiv images."""
 
-__author__ = 'Chong Guo'
+__author__ = 'Chong Guo <armourcy@gmail.com>'
 __copyright__ = 'Copyright 2018, Chong Guo'
 __license__ = 'MIT'
-__email__ = 'armourcy@email.com'
 
 import os
 import json
